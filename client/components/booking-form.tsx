@@ -8,10 +8,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "lucide-react"
-import type { Booking } from "@/app/page"
+
+interface SimpleBooking {
+  unitName: string;
+  startDate: string;
+  endDate: string;
+}
 
 interface BookingFormProps {
-  onAddBooking: (booking: Omit<Booking, "id" | "createdAt" | "status">) => void
+  onAddBooking: (booking: SimpleBooking) => void
 }
 
 export function BookingForm({ onAddBooking }: BookingFormProps) {

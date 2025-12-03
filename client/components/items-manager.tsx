@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { apiClient } from "@/lib/api-client";
-import type { Order, Booking, OrderType, OrderStatus, OrderItem } from "@/lib/types";
+import { Order, Booking, OrderType, OrderStatus, OrderItem } from "@/lib/types";
 import { Package, Plus, Trash2, Check } from "lucide-react";
 
 type ItemsManagerProps = {
@@ -19,7 +19,7 @@ type ItemsManagerProps = {
 
 export function ItemsManager({ orders, bookings, onRefresh }: ItemsManagerProps) {
   const [selectedBooking, setSelectedBooking] = useState("");
-  const [orderType, setOrderType] = useState<OrderType>("food");
+  const [orderType, setOrderType] = useState<OrderType>(OrderType.FOOD);
   const [itemName, setItemName] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [price, setPrice] = useState(0);
@@ -71,7 +71,7 @@ export function ItemsManager({ orders, bookings, onRefresh }: ItemsManagerProps)
       alert("Order created successfully!");
       setSelectedBooking("");
       setItems([]);
-      setOrderType("food");
+      setOrderType(OrderType.FOOD);
       onRefresh();
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to create order");
@@ -91,12 +91,12 @@ export function ItemsManager({ orders, bookings, onRefresh }: ItemsManagerProps)
 
   const getStatusBadge = (status: OrderStatus) => {
     const variants: Record<OrderStatus, { variant: any; label: string }> = {
-      pending: { variant: "outline", label: "Pending" },
-      confirmed: { variant: "secondary", label: "Confirmed" },
-      preparing: { variant: "default", label: "Preparing" },
-      ready: { variant: "default", label: "Ready" },
-      delivered: { variant: "outline", label: "Delivered" },
-      cancelled: { variant: "destructive", label: "Cancelled" },
+      [OrderStatus.PENDING]: { variant: "outline", label: "Pending" },
+      [OrderStatus.CONFIRMED]: { variant: "secondary", label: "Confirmed" },
+      [OrderStatus.PREPARING]: { variant: "default", label: "Preparing" },
+      [OrderStatus.READY]: { variant: "default", label: "Ready" },
+      [OrderStatus.DELIVERED]: { variant: "outline", label: "Delivered" },
+      [OrderStatus.CANCELLED]: { variant: "destructive", label: "Cancelled" },
     };
     return variants[status];
   };
@@ -258,36 +258,36 @@ export function ItemsManager({ orders, bookings, onRefresh }: ItemsManagerProps)
                         ))}
                         <p className="font-semibold">Total: ${Number(order.totalPrice).toFixed(2)}</p>
                       </div>
-                      {order.status !== "delivered" && order.status !== "cancelled" && (
+                      {order.status !== OrderStatus.DELIVERED && order.status !== OrderStatus.CANCELLED && (
                         <div className="flex gap-2">
-                          {order.status === "pending" && (
+                          {order.status === OrderStatus.PENDING && (
                             <Button
                               size="sm"
-                              onClick={() => handleUpdateStatus(order.id, "confirmed")}
+                              onClick={() => handleUpdateStatus(order.id, OrderStatus.CONFIRMED)}
                             >
                               Confirm
                             </Button>
                           )}
-                          {order.status === "confirmed" && (
+                          {order.status === OrderStatus.CONFIRMED && (
                             <Button
                               size="sm"
-                              onClick={() => handleUpdateStatus(order.id, "preparing")}
+                              onClick={() => handleUpdateStatus(order.id, OrderStatus.PREPARING)}
                             >
                               Start Preparing
                             </Button>
                           )}
-                          {order.status === "preparing" && (
+                          {order.status === OrderStatus.PREPARING && (
                             <Button
                               size="sm"
-                              onClick={() => handleUpdateStatus(order.id, "ready")}
+                              onClick={() => handleUpdateStatus(order.id, OrderStatus.READY)}
                             >
                               Mark Ready
                             </Button>
                           )}
-                          {order.status === "ready" && (
+                          {order.status === OrderStatus.READY && (
                             <Button
                               size="sm"
-                              onClick={() => handleUpdateStatus(order.id, "delivered")}
+                              onClick={() => handleUpdateStatus(order.id, OrderStatus.DELIVERED)}
                             >
                               <Check className="h-4 w-4 mr-2" />
                               Delivered
