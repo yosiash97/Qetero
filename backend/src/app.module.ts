@@ -31,9 +31,9 @@ import { InquiriesModule } from './inquiries/inquiries.module';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV') === 'development',
         logging: configService.get('NODE_ENV') === 'development',
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        ssl: configService.get('NODE_ENV') === 'production' 
+          ? { rejectUnauthorized: true }
+          : { rejectUnauthorized: false },
       }),
       inject: [ConfigService],
     }),
