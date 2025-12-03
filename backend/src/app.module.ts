@@ -21,20 +21,33 @@ import { InquiriesModule } from './inquiries/inquiries.module';
     // Database
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DB_HOST'),
-        port: configService.get('DB_PORT'),
-        username: configService.get('DB_USERNAME'),
-        password: configService.get('DB_PASSWORD'),
-        database: configService.get('DB_DATABASE'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get('NODE_ENV') === 'development',
-        logging: configService.get('NODE_ENV') === 'development',
-        ssl: configService.get('NODE_ENV') === 'production' 
-          ? { rejectUnauthorized: true }
-          : { rejectUnauthorized: false },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const databaseUrl = process.env.DATABASE_URL;
+        
+        if (databaseUrl) {
+          return {
+            type: 'postgres',
+            url: databaseUrl,
+            entities: [__dirname + '/**/*.entity{.ts,.js}'],
+            synchronize: false,
+            logging: configService.get('NODE_ENV') === 'development',
+            ssl: { rejectUnauthorized: false },
+          };
+        }
+        
+        return {
+          type: 'postgres',
+          host: process.env.PGHOST || configService.get('DB_HOST'),
+          port: parseInt(process.env.PGPORT || configService.get('DB_PORT') || '5432'),
+          username: process.env.PGUSER || configService.get('DB_USERNAME'),
+          password: process.env.PGPASSWORD || configService.get('DB_PASSWORD'),
+          database: process.env.PGDATABASE || configService.get('DB_DATABASE'),
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          synchronize: configService.get('NODE_ENV') === 'development',
+          logging: configService.get('NODE_ENV') === 'development',
+          ssl: { rejectUnauthorized: false },
+        };
+      },
       inject: [ConfigService],
     }),
 
