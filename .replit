@@ -21,13 +21,13 @@ args = "Hotel Management App"
 name = "Hotel Management App"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "bash start.sh"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development bash start.sh"
+waitForPort = 5000
 
 [[ports]]
 localPort = 3001
@@ -39,5 +39,5 @@ externalPort = 80
 
 [deployment]
 deploymentTarget = "vm"
-run = ["bash", "-c", "export NODE_ENV=production && bash start.sh"]
-build = ["bash", "-c", "cd backend && npm install && npm run build && cd ../client && npm install && npm run build"]
+run = ["bash", "start.sh"]
+build = ["bash", "build.sh"]

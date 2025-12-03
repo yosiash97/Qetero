@@ -1,12 +1,16 @@
 #!/bin/bash
 
-# Determine if we're in production or development mode
+# Default to production if NODE_ENV is not set
+if [ -z "$NODE_ENV" ]; then
+  export NODE_ENV=production
+fi
+
 if [ "$NODE_ENV" = "production" ]; then
   echo "Starting in production mode..."
   
   # Start backend in the background
   cd backend
-  npm run start:prod &
+  node dist/main.js &
   BACKEND_PID=$!
   
   # Wait for backend to start
