@@ -28,7 +28,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  await app.listen(port, 'localhost');
   console.log(`🚀 Hotel Management System running on http://localhost:${port}/api`);
 }
 bootstrap();
