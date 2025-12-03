@@ -11,12 +11,15 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import { Booking, BookingStatus } from './entities/booking.entity';
 import { RoomsService } from '../rooms/rooms.service';
 import { RoomStatus } from '../rooms/entities/room.entity';
+import { Order } from '../orders/entities/order.entity';
 
 @Injectable()
 export class BookingsService {
   constructor(
     @InjectRepository(Booking)
     private bookingRepository: Repository<Booking>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
     private roomsService: RoomsService,
   ) {}
 
@@ -55,11 +58,14 @@ export class BookingsService {
       );
     }
 
-    const booking = this.bookingRepository.create(createBookingDto);
+    const booking = this.bookingRepository.create({
+      ...createBookingDto,
+      status: BookingStatus.CHECKED_IN, // Auto check-in for walk-in guests
+    });
     const savedBooking = await this.bookingRepository.save(booking);
 
-    // Update room status to reserved
-    await this.roomsService.updateStatus(roomId, RoomStatus.RESERVED);
+    // Update room status to occupied (since guest is checked in)
+    await this.roomsService.updateStatus(roomId, RoomStatus.OCCUPIED);
 
     return savedBooking;
   }
@@ -128,6 +134,21 @@ export class BookingsService {
         'Only checked-in bookings can be checked out',
       );
     }
+
+    // Calculate total bill: room charges + orders
+    const orders = await this.orderRepository.find({
+      where: { bookingId: id },
+    });
+
+    const ordersTotal = orders.reduce(
+      (sum, order) => sum + Number(order.totalPrice),
+      0,
+    );
+
+    // Update booking with final total (room + orders)
+    const roomCharges = Number(booking.totalPrice);
+    const finalTotal = roomCharges + ordersTotal;
+    booking.totalPrice = finalTotal;
 
     booking.status = BookingStatus.CHECKED_OUT;
     await this.roomsService.updateStatus(booking.roomId, RoomStatus.AVAILABLE);

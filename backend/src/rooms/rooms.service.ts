@@ -51,7 +51,9 @@ export class RoomsService {
     hotelId?: string,
     checkIn?: Date,
     checkOut?: Date,
-  ): Promise<Room[]> {
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ data: Room[]; total: number; page: number; totalPages: number }> {
     const query = this.roomRepository
       .createQueryBuilder('room')
       .leftJoinAndSelect('room.hotel', 'hotel')
@@ -72,7 +74,22 @@ export class RoomsService {
       );
     }
 
-    return await query.getMany();
+    // Get total count before pagination
+    const total = await query.getCount();
+
+    // Apply pagination
+    const skip = (page - 1) * limit;
+    query.skip(skip).take(limit);
+
+    const data = await query.getMany();
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      total,
+      page,
+      totalPages,
+    };
   }
 
   async update(id: string, updateRoomDto: UpdateRoomDto): Promise<Room> {
