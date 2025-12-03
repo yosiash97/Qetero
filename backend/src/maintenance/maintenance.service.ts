@@ -8,16 +8,18 @@ import OpenAI from 'openai';
 
 @Injectable()
 export class MaintenanceService {
-  private openai: OpenAI;
+  private openai: OpenAI | null;
 
   constructor(
     @InjectRepository(Maintenance)
     private readonly maintenanceRepository: Repository<Maintenance>,
   ) {
-    // Initialize OpenAI client
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    // Initialize OpenAI client only if API key is provided
+    this.openai = process.env.OPENAI_API_KEY 
+      ? new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY,
+        })
+      : null;
   }
 
   async create(createMaintenanceDto: CreateMaintenanceDto): Promise<Maintenance> {
@@ -102,6 +104,17 @@ export class MaintenanceService {
     messageAmharic: string;
   }> {
     try {
+      if (!this.openai) {
+        // Return default values if OpenAI is not configured
+        return {
+          category: MaintenanceCategory.OTHER,
+          priority: MaintenancePriority.MEDIUM,
+          summary: message.substring(0, 100),
+          summaryAmharic: message.substring(0, 100),
+          messageAmharic: message,
+        };
+      }
+
       const completion = await this.openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
