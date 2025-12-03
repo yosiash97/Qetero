@@ -27,7 +27,8 @@ async function bootstrap() {
   // API prefix
   app.setGlobalPrefix('api');
 
-  const port = process.env.PORT || 3000;
+  // Always use port 3001 for backend API (frontend uses 5000)
+  const port = process.env.BACKEND_PORT || 3001;
   await app.listen(port, '0.0.0.0');
   console.log(`🚀 Hotel Management System running on http://0.0.0.0:${port}/api`);
 }
