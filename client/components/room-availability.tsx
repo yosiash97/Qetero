@@ -18,7 +18,7 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { apiClient } from "@/lib/api-client";
 import type { Room, Booking } from "@/lib/types";
-import { Search, Bed, DollarSign, UserPlus } from "lucide-react";
+import { Search, Bed, Bath, DollarSign, UserPlus } from "lucide-react";
 
 type RoomAvailabilityProps = {
   rooms: Room[];
@@ -46,14 +46,26 @@ export function RoomAvailability({ rooms, bookings, onRefresh }: RoomAvailabilit
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
 
+  // Filter state
+  const [bedsFilter, setBedsFilter] = useState<number | undefined>(undefined);
+  const [bathroomsFilter, setBathroomsFilter] = useState<number | undefined>(undefined);
+
   useEffect(() => {
     loadAvailableRooms();
-  }, [currentPage]);
+  }, [currentPage, bedsFilter, bathroomsFilter]);
 
   const loadAvailableRooms = async () => {
     try {
       setLoadingRooms(true);
-      const response = await apiClient.getAvailableRooms(undefined, undefined, undefined, currentPage, 10);
+      const response = await apiClient.getAvailableRooms(
+        undefined,
+        undefined,
+        undefined,
+        bedsFilter,
+        bathroomsFilter,
+        currentPage,
+        10
+      );
       setAvailableRooms(response.data);
       setTotalPages(response.totalPages);
       setTotalRooms(response.total);
@@ -191,6 +203,68 @@ export function RoomAvailability({ rooms, bookings, onRefresh }: RoomAvailabilit
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4 p-4 bg-muted rounded-lg">
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Filters:</span>
+            </div>
+
+            <div className="flex-1 min-w-[150px]">
+              <Select
+                value={bedsFilter?.toString() || "all"}
+                onValueChange={(value) => {
+                  setBedsFilter(value === "all" ? undefined : parseInt(value));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Any Beds" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any Beds</SelectItem>
+                  <SelectItem value="1">1+ Bed</SelectItem>
+                  <SelectItem value="2">2+ Beds</SelectItem>
+                  <SelectItem value="3">3+ Beds</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex-1 min-w-[150px]">
+              <Select
+                value={bathroomsFilter?.toString() || "all"}
+                onValueChange={(value) => {
+                  setBathroomsFilter(value === "all" ? undefined : parseInt(value));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Any Bathrooms" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any Bathrooms</SelectItem>
+                  <SelectItem value="1">1+ Bathroom</SelectItem>
+                  <SelectItem value="2">2+ Bathrooms</SelectItem>
+                  <SelectItem value="3">3+ Bathrooms</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(bedsFilter || bathroomsFilter) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setBedsFilter(undefined);
+                  setBathroomsFilter(undefined);
+                  setCurrentPage(1);
+                }}
+              >
+                Clear Filters
+              </Button>
+            )}
+          </div>
+
           {loadingRooms ? (
             <p className="text-center text-muted-foreground py-8">Loading rooms...</p>
           ) : (
@@ -208,9 +282,15 @@ export function RoomAvailability({ rooms, bookings, onRefresh }: RoomAvailabilit
                       <h3 className="font-semibold text-lg">Room {room.roomNumber}</h3>
                       <Badge variant="secondary">{room.type}</Badge>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Bed className="h-4 w-4" />
-                      Capacity: {room.capacity}
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Bed className="h-4 w-4" />
+                        <span>{room.beds} {room.beds === 1 ? 'Bed' : 'Beds'}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Bath className="h-4 w-4" />
+                        <span>{room.bathrooms} {room.bathrooms === 1 ? 'Bath' : 'Baths'}</span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -291,8 +371,18 @@ export function RoomAvailability({ rooms, bookings, onRefresh }: RoomAvailabilit
                   <span className="font-semibold">Room {selectedRoom.roomNumber}</span>
                   <Badge>{selectedRoom.type}</Badge>
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-muted-foreground space-y-1">
                   <p>Capacity: {selectedRoom.capacity} guests</p>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                      <Bed className="h-4 w-4" />
+                      <span>{selectedRoom.beds} {selectedRoom.beds === 1 ? 'Bed' : 'Beds'}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Bath className="h-4 w-4" />
+                      <span>{selectedRoom.bathrooms} {selectedRoom.bathrooms === 1 ? 'Bath' : 'Baths'}</span>
+                    </div>
+                  </div>
                   <p>Floor: {selectedRoom.floor}</p>
                   <p className="font-semibold mt-2">${selectedRoom.pricePerNight}/night</p>
                 </div>

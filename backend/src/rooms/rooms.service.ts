@@ -51,6 +51,8 @@ export class RoomsService {
     hotelId?: string,
     checkIn?: Date,
     checkOut?: Date,
+    beds?: number,
+    bathrooms?: number,
     page: number = 1,
     limit: number = 10,
   ): Promise<{ data: Room[]; total: number; page: number; totalPages: number }> {
@@ -62,6 +64,14 @@ export class RoomsService {
 
     if (hotelId) {
       query.andWhere('room.hotelId = :hotelId', { hotelId });
+    }
+
+    if (beds !== undefined) {
+      query.andWhere('room.beds >= :beds', { beds });
+    }
+
+    if (bathrooms !== undefined) {
+      query.andWhere('room.bathrooms >= :bathrooms', { bathrooms });
     }
 
     // If dates provided, exclude rooms with conflicting bookings

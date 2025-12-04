@@ -44,6 +44,12 @@ export class Room {
   @Column({ type: 'int' })
   capacity: number;
 
+  @Column({ type: 'int', default: 1 })
+  beds: number;
+
+  @Column({ type: 'int', default: 1 })
+  bathrooms: number;
+
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   pricePerNight: number;
 

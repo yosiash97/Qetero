@@ -32,14 +32,26 @@ export class RoomsController {
     @Query('hotelId') hotelId?: string,
     @Query('checkIn') checkIn?: string,
     @Query('checkOut') checkOut?: string,
+    @Query('beds') beds?: string,
+    @Query('bathrooms') bathrooms?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
     const checkInDate = checkIn ? new Date(checkIn) : undefined;
     const checkOutDate = checkOut ? new Date(checkOut) : undefined;
+    const bedsNum = beds ? parseInt(beds, 10) : undefined;
+    const bathroomsNum = bathrooms ? parseInt(bathrooms, 10) : undefined;
     const pageNum = page ? parseInt(page, 10) : 1;
     const limitNum = limit ? parseInt(limit, 10) : 10;
-    return this.roomsService.findAvailable(hotelId, checkInDate, checkOutDate, pageNum, limitNum);
+    return this.roomsService.findAvailable(
+      hotelId,
+      checkInDate,
+      checkOutDate,
+      bedsNum,
+      bathroomsNum,
+      pageNum,
+      limitNum,
+    );
   }
 
   @Get('hotel/:hotelId')

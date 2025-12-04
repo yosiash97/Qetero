@@ -20,6 +20,16 @@ export class CreateRoomDto {
   capacity: number;
 
   @IsNumber()
+  @Min(1)
+  @IsOptional()
+  beds?: number;
+
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  bathrooms?: number;
+
+  @IsNumber()
   @Min(0)
   pricePerNight: number;
 

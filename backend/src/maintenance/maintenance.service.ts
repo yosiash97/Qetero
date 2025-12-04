@@ -47,10 +47,17 @@ export class MaintenanceService {
       where.category = category;
     }
 
+    // Default sort order: if no filters are set, sort by createdAt (newest first)
+    // Otherwise, sort by status, priority, then createdAt
+    const hasFilters = priority || category;
+    const orderBy = hasFilters
+      ? { status: 'ASC' as const, priority: 'DESC' as const, createdAt: 'DESC' as const }
+      : { createdAt: 'DESC' as const };
+
     const [data, total] = await this.maintenanceRepository.findAndCount({
       where,
       relations: ['hotel', 'room', 'booking', 'user'],
-      order: { status: 'ASC', priority: 'DESC', createdAt: 'DESC' },
+      order: orderBy,
       skip: (page - 1) * limit,
       take: limit,
     });

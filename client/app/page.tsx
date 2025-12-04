@@ -9,7 +9,8 @@ import { RoomAvailability } from "@/components/room-availability";
 import { BookingsList } from "@/components/bookings-list";
 import { ItemsManager } from "@/components/items-manager";
 import { MaintenanceList } from "@/components/maintenance-list";
-import { Calendar, Package, List, LogOut, User, Wrench } from "lucide-react";
+import { InquiriesList } from "@/components/inquiries-list";
+import { Calendar, Package, List, LogOut, User, Wrench, MessageSquare } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 
@@ -126,6 +127,10 @@ export default function AdminDashboard() {
                 <Wrench className="h-4 w-4" />
                 Maintenance
               </TabsTrigger>
+              <TabsTrigger value="inquiries" className="gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Inquiries
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="check-in" className="space-y-6">
@@ -142,6 +147,10 @@ export default function AdminDashboard() {
 
             <TabsContent value="maintenance" className="space-y-6">
               <MaintenanceList />
+            </TabsContent>
+
+            <TabsContent value="inquiries" className="space-y-6">
+              <InquiriesList />
             </TabsContent>
           </Tabs>
         )}

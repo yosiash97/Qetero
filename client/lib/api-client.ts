@@ -6,6 +6,7 @@ import type {
   Booking,
   Order,
   Maintenance,
+  Inquiry,
   AuthResponse,
   LoginRequest,
   RegisterRequest,
@@ -14,6 +15,7 @@ import type {
   RoomStatus,
   OrderStatus,
   MaintenanceStatus,
+  InquiryStatus,
   PaginatedResponse,
 } from './types';
 
@@ -148,11 +150,13 @@ class ApiClient {
     hotelId?: string,
     checkIn?: string,
     checkOut?: string,
+    beds?: number,
+    bathrooms?: number,
     page: number = 1,
     limit: number = 10
   ): Promise<PaginatedResponse<Room>> {
     const response = await this.client.get<PaginatedResponse<Room>>('/rooms/available', {
-      params: { hotelId, checkIn, checkOut, page, limit },
+      params: { hotelId, checkIn, checkOut, beds, bathrooms, page, limit },
     });
     return response.data;
   }
@@ -257,6 +261,37 @@ class ApiClient {
 
   async deleteMaintenanceRequest(id: string): Promise<void> {
     await this.client.delete(`/maintenance/${id}`);
+  }
+
+  // Inquiry endpoints
+  async getInquiries(
+    status?: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaginatedResponse<Inquiry>> {
+    const response = await this.client.get<PaginatedResponse<Inquiry>>('/inquiries', {
+      params: { status, page, limit },
+    });
+    return response.data;
+  }
+
+  async getInquiryById(id: string): Promise<Inquiry> {
+    const response = await this.client.get<Inquiry>(`/inquiries/${id}`);
+    return response.data;
+  }
+
+  async updateInquiryStatus(id: string, status: InquiryStatus): Promise<Inquiry> {
+    const response = await this.client.patch<Inquiry>(`/inquiries/${id}`, { status });
+    return response.data;
+  }
+
+  async updateInquiry(id: string, data: Partial<Inquiry>): Promise<Inquiry> {
+    const response = await this.client.patch<Inquiry>(`/inquiries/${id}`, data);
+    return response.data;
+  }
+
+  async deleteInquiry(id: string): Promise<void> {
+    await this.client.delete(`/inquiries/${id}`);
   }
 }
 

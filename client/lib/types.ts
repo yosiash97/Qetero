@@ -68,6 +68,11 @@ export enum MaintenanceStatus {
   CLOSED = 'closed',
 }
 
+export enum InquiryStatus {
+  RECEIVED = 'received',
+  ADDRESSED = 'addressed',
+}
+
 export interface User {
   id: string;
   email: string;
@@ -98,6 +103,8 @@ export interface Room {
   roomNumber: string;
   type: RoomType;
   capacity: number;
+  beds: number;
+  bathrooms: number;
   pricePerNight: number;
   status: RoomStatus;
   floor?: number;
@@ -168,6 +175,22 @@ export interface Maintenance {
   createdAt: string;
   updatedAt: string;
   resolvedAt?: string;
+}
+
+export interface Inquiry {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  message: string;
+  messageAmharic?: string;
+  messageEnglish?: string;
+  status: InquiryStatus;
+  originalLanguage?: string;
+  aiAnalysis?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  addressedAt?: string;
 }
 
 // API Request/Response types
